@@ -6,8 +6,8 @@ public class TerrainGenerator : MonoBehaviour
     public int width = 256;
     public int height = 256;
 
-    public float[] scales = { 5f, 10f, 20f, 40f };
-    public float[] multipliers = { 1.5f, 1f, 0.5f, 0.25f };
+    public float[] scales = { 5f, 6f, 20f, 40f, 400f };
+    public float[] multipliers = { -1f, 0.8f, 0.4f, 0.3f, 0.05f };
 
     void Update()
     {
