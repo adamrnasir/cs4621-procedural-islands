@@ -5,9 +5,11 @@ public class TerrainGenerator : MonoBehaviour
     public int depth = 20;
     public int width = 256;
     public int height = 256;
-    public float scale = 20f;
 
-    void Start()
+    public float[] scales = { 5f, 10f, 20f, 40f };
+    public float[] multipliers = { 1.5f, 1f, 0.5f, 0.25f };
+
+    void Update()
     {
         Terrain terrain = GetComponent<Terrain>();
         terrain.terrainData = GenerateTerrain(terrain.terrainData);
@@ -38,9 +40,15 @@ public class TerrainGenerator : MonoBehaviour
 
     float CalculateHeight(int x, int y)
     {
-        float xCoord = (float)x / width * scale;
-        float yCoord = (float)y / height * scale;
+        float sum_h = 0f;
+        for (int i = 0; i < scales.Length; i++)
+        {
+            float s = scales[i];
+            float xCoord = (float)x / width * (s);
+            float yCoord = (float)y / height * (s);
+            sum_h += multipliers[i] * Mathf.PerlinNoise(xCoord, yCoord);
+        }
 
-        return Mathf.PerlinNoise(xCoord, yCoord);
+        return sum_h;
     }
 }
