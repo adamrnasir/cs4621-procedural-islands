@@ -11,11 +11,18 @@ public class TerrainGenerator : MonoBehaviour
     public float lacunarity = 2f;
     public Vector2 offset = Vector2.zero;
 
-    void Update()
+    void Start()
     {
         Terrain terrain = GetComponent<Terrain>();
         terrain.terrainData = GenerateTerrain(terrain.terrainData);
     }
+
+
+    void Update() {
+        Terrain terrain = GetComponent<Terrain>();
+        terrain.terrainData = GenerateTerrain(terrain.terrainData);
+    }
+
 
     TerrainData GenerateTerrain(TerrainData terrainData)
     {
