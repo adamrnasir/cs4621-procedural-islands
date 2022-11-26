@@ -325,5 +325,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 920aaa0b41b914fa99c28ec51cdfe618, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  plane: {fileID: 6660343102424796043, guid: dbb57c96c42af4417a1f657549e47a62, type: 3}
   player: {fileID: 1229695141}
+  depth: 20
+  width: 256
+  height: 256
+  seed: 0
+  octaves: 5
+  persistence: 0.5
+  lacunarity: 2
+  offset: {x: 0, y: 0}
+  sandTexture: {fileID: 0}
