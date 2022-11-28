@@ -6,10 +6,13 @@ using UnityEngine;
 class Tile { 
     public GameObject theTile; 
     public float creationTime; 
+    public GameObject waterplane;
 
-    public Tile(GameObject t, float ct) { 
+    public Tile(GameObject t, GameObject wp, float ct) { 
         theTile = t; 
         creationTime = ct;
+        waterplane = wp;
+
     }
 }
 
@@ -28,6 +31,7 @@ public class GenerateInfinite : MonoBehaviour
     public float lacunarity = 2f;
     public Vector2 offset = Vector2.zero;
     public Texture2D sandTexture;
+    public GameObject plane;
 
 
 
@@ -110,6 +114,7 @@ public class GenerateInfinite : MonoBehaviour
         for (int x = -halfTilesX; x < halfTilesX; x++) {
             for (int z = -halfTilesZ; z < halfTilesZ; z++) { 
                 Vector3 pos = new Vector3((x * planeSize + startPos.x), 0, (z * planeSize + startPos.z));
+                Vector3 waterpos = new Vector3((x * planeSize + startPos.x + planeSize / 2), 2, (z * planeSize + startPos.z + planeSize / 2));
                 TerrainData _terraindata = GenerateTerrain(new TerrainData(), pos.x, pos.z);
 
                 // sand texture
@@ -120,19 +125,20 @@ public class GenerateInfinite : MonoBehaviour
 
 
                 GameObject terrain = Terrain.CreateTerrainGameObject(_terraindata);
+                GameObject water = (GameObject) Instantiate(plane, waterpos, Quaternion.identity);
                 GameObject t = (GameObject) Instantiate(terrain, pos, Quaternion.identity);
                 Destroy(terrain);
 
                 string tilename = "Tile_" + ((int)(pos.x)).ToString() + "_" + ((int)(pos.z)).ToString();
                 t.name = tilename; 
-                Tile tile = new Tile(t, updateTime);
+                Tile tile = new Tile(t, water, updateTime);
                 tiles.Add(tilename, tile);
             }
         }
         
     }
 
-    // // Update is called once per frame
+    // Update is called once per frame
     void Update()
     {
 
@@ -150,22 +156,26 @@ public class GenerateInfinite : MonoBehaviour
             for (int x = -halfTilesX; x < halfTilesX; x++) { 
                 for (int z = -halfTilesZ; z < halfTilesZ; z++) { 
                     Vector3 pos = new Vector3((x * planeSize + playerX), 0, (z * planeSize + playerZ));
+                    Vector3 waterpos = new Vector3((x * planeSize + playerX + planeSize / 2), 2, (z * planeSize + playerZ + planeSize / 2));
                     string tilename = "Tile_" + ((int)(pos.x)).ToString() + "_" + ((int)(pos.z)).ToString();
 
                     if(!tiles.ContainsKey(tilename)) { 
-                        GameObject terrain = new GameObject();
                         TerrainData _terraindata = GenerateTerrain(new TerrainData(), pos.x, pos.z);
-                        terrain = Terrain.CreateTerrainGameObject(_terraindata);
                          // sand texture
                         TerrainLayer tl = new TerrainLayer();
                         tl.diffuseTexture = sandTexture; 
                         _terraindata.terrainLayers = new TerrainLayer[] {tl};
 
+                        GameObject terrain = Terrain.CreateTerrainGameObject(_terraindata);
+
+
 
                         GameObject t = (GameObject) Instantiate(terrain, pos, Quaternion.identity);
+                        GameObject water = (GameObject) Instantiate(plane, waterpos, Quaternion.identity);
                         Destroy(terrain);
                         t.name = tilename; 
-                        Tile tile = new Tile(t, updateTime); 
+                        Tile tile = new Tile(t, water, updateTime);
+
                         tiles.Add(tilename, tile);
                     }
                     else { 
@@ -178,6 +188,7 @@ public class GenerateInfinite : MonoBehaviour
             foreach(Tile tls in tiles.Values){ 
                 if (tls.creationTime != updateTime) { 
                     Destroy(tls.theTile);
+                    Destroy(tls.waterplane);
                 }
                 else { 
                     newTerrain.Add(tls.theTile.name, tls);
