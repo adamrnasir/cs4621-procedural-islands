@@ -7,11 +7,14 @@ class Tile {
     public GameObject theTile; 
     public float creationTime; 
     public GameObject waterplane;
+    public GameObject[] treeArr;
 
-    public Tile(GameObject t, GameObject wp, float ct) { 
+    public Tile(GameObject t, GameObject wp, GameObject[] trees, float ct) { 
         theTile = t; 
         creationTime = ct;
+        treeArr = trees; 
         waterplane = wp;
+
 
     }
 }
@@ -32,28 +35,31 @@ public class GenerateInfinite : MonoBehaviour
     public Vector2 offset = Vector2.zero;
     public Texture2D sandTexture;
     public GameObject plane;
+    public GameObject tree;
 
 
 
     int planeSize = 256; 
-    int halfTilesX = 2; 
-    int halfTilesZ = 2; 
+    int halfTilesX = 3; 
+    int halfTilesZ = 3; 
 
     Vector3 startPos; 
 
     Hashtable tiles = new Hashtable();
 
-    TerrainData GenerateTerrain(TerrainData terrainData, float x_offset, float y_offset)
+    (TerrainData terrainData, GameObject[] trees) GenerateTerrain(TerrainData terrainData, float x_offset, float y_offset)
     {
         terrainData.heightmapResolution = width + 1;
         terrainData.size = new Vector3(width, depth, height);
-        terrainData.SetHeights(0, 0, GenerateHeights(x_offset, y_offset));
-        return terrainData;
+        var heights_and_trees = GenerateHeightsAndTrees(x_offset, y_offset);
+        terrainData.SetHeights(0, 0, heights_and_trees.heights);
+        return (terrainData, heights_and_trees.trees);
     }
 
-    float[,] GenerateHeights(float x_offset, float y_offset)
+    (float[,] heights, GameObject[] trees) GenerateHeightsAndTrees(float x_offset, float y_offset)
     {
         float[,] heights = new float[width + 1, height + 1];
+        List<GameObject> trees = new List<GameObject>();
 
         System.Random prng = new System.Random(seed);
         Vector2[] octaveOffsets = new Vector2[octaves];
@@ -71,10 +77,16 @@ public class GenerateInfinite : MonoBehaviour
             for (int y = 0; y <= height; y++)
             {
                 heights[x, y] = CalculateHeight(x, y, x_offset, y_offset, octaveOffsets);
+                if (heights[x, y] > 0.3) { 
+                    float treeSeed = Random.Range(0, 1f);
+                    if (treeSeed > 0.9995) {
+                        trees.Add(Instantiate(tree, new Vector3(y + x_offset, heights[x, y] * depth - 1, x + y_offset), Quaternion.identity));
+                    }
+                }
             }
         }
 
-        return heights;
+        return (heights, trees.ToArray());
     }
 
     float CalculateHeight(int x, int y, float x_offset, float y_offset, Vector2[] octaveOffsets)
@@ -116,7 +128,7 @@ public class GenerateInfinite : MonoBehaviour
             { 
                 Vector3 pos = new Vector3((x * planeSize + startPos.x), 0, (z * planeSize + startPos.z));
                 Vector3 waterpos = new Vector3((x * planeSize + startPos.x + planeSize / 2), 2, (z * planeSize + startPos.z + planeSize / 2));
-                TerrainData _terraindata = GenerateTerrain(new TerrainData(), pos.x, pos.z);
+                (TerrainData _terraindata, GameObject[] tree_arr) = GenerateTerrain(new TerrainData(), pos.x, pos.z);
 
                 // sand texture
                 TerrainLayer tl = new TerrainLayer();
@@ -126,11 +138,12 @@ public class GenerateInfinite : MonoBehaviour
                 GameObject terrain = Terrain.CreateTerrainGameObject(_terraindata);
                 GameObject water = (GameObject) Instantiate(plane, waterpos, Quaternion.identity);
                 GameObject t = (GameObject) Instantiate(terrain, pos, Quaternion.identity);
+                t.layer = 6;
                 Destroy(terrain);
 
                 string tilename = "Tile_" + ((int)(pos.x)).ToString() + "_" + ((int)(pos.z)).ToString();
                 t.name = tilename; 
-                Tile tile = new Tile(t, water, updateTime);
+                Tile tile = new Tile(t, water, tree_arr, updateTime);
                 tiles.Add(tilename, tile);
             }
         }
@@ -140,7 +153,6 @@ public class GenerateInfinite : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
         int xMove = (int)(player.transform.position.x - startPos.x); 
         int zMove = (int)(player.transform.position.z - startPos.z); 
 
@@ -159,7 +171,7 @@ public class GenerateInfinite : MonoBehaviour
                     string tilename = "Tile_" + ((int)(pos.x)).ToString() + "_" + ((int)(pos.z)).ToString();
 
                     if(!tiles.ContainsKey(tilename)) { 
-                        TerrainData _terraindata = GenerateTerrain(new TerrainData(), pos.x, pos.z);
+                        (TerrainData _terraindata, GameObject[] tree_arr) = GenerateTerrain(new TerrainData(), pos.x, pos.z);
                          // sand texture
                         TerrainLayer tl = new TerrainLayer();
                         tl.diffuseTexture = sandTexture; 
@@ -170,10 +182,11 @@ public class GenerateInfinite : MonoBehaviour
 
 
                         GameObject t = (GameObject) Instantiate(terrain, pos, Quaternion.identity);
+                        t.layer = 6;
                         GameObject water = (GameObject) Instantiate(plane, waterpos, Quaternion.identity);
                         Destroy(terrain);
                         t.name = tilename; 
-                        Tile tile = new Tile(t, water, updateTime);
+                        Tile tile = new Tile(t, water, tree_arr, updateTime);
 
                         tiles.Add(tilename, tile);
                     }
@@ -188,6 +201,9 @@ public class GenerateInfinite : MonoBehaviour
                 if (tls.creationTime != updateTime) { 
                     Destroy(tls.theTile);
                     Destroy(tls.waterplane);
+                    foreach (GameObject tree in tls.treeArr) {
+                        Destroy(tree);
+                    }
                 }
                 else { 
                     newTerrain.Add(tls.theTile.name, tls);
