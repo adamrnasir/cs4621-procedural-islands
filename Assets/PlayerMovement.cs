@@ -10,15 +10,18 @@ public class PlayerMovement : MonoBehaviour
     public Transform groundCheck;
     public float groundDistance = 0.4f;
     public LayerMask groundMask; 
-    public bool flight = false;
+    public LayerMask waterMask;
+    bool flight = false;
 
     Vector3 velocity;
     bool isGrounded;
+    bool isSwimming;
 
     // Update is called once per frame
     void Update()
     {
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
+        isSwimming = Physics.CheckSphere(groundCheck.position, groundDistance, waterMask);
 
         if (isGrounded && velocity.y < 0)
         {

@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 184573900969444041}
   - component: {fileID: 184573900969444040}
   - component: {fileID: 184573900969444043}
-  m_Layer: 0
+  m_Layer: 4
   m_Name: InfiniteWaterPlane
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -232,6 +232,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: First Person Player
       objectReference: {fileID: 0}
+    - target: {fileID: 7675115837777546009, guid: 41380d6a191184896a91bfd9d1e8f8d6, type: 3}
+      propertyPath: waterMask.m_Bits
+      value: 16
+      objectReference: {fileID: 0}
+    - target: {fileID: 7675115837777546009, guid: 41380d6a191184896a91bfd9d1e8f8d6, type: 3}
+      propertyPath: groundMask.m_Bits
+      value: 64
+      objectReference: {fileID: 0}
     - target: {fileID: 7675115837777546010, guid: 41380d6a191184896a91bfd9d1e8f8d6, type: 3}
       propertyPath: m_RootOrder
       value: 2
@@ -292,7 +300,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1808017662}
   - component: {fileID: 1808017663}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: LandScape
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -336,3 +344,4 @@ MonoBehaviour:
   offset: {x: 0, y: 0}
   sandTexture: {fileID: 2800000, guid: 56d04ebfcc19f4068bca3dd9c4b30aeb, type: 3}
   plane: {fileID: 184573900969444042, guid: 3fbd6ab92e5e14adc97de30a706960ba, type: 3}
+  tree: {fileID: 145826, guid: 35d82b3ae8f9c4f42b6b11ccb42803cd, type: 3}
