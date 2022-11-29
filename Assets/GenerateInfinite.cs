@@ -40,8 +40,8 @@ public class GenerateInfinite : MonoBehaviour
 
 
     int planeSize = 256; 
-    int halfTilesX = 2; 
-    int halfTilesZ = 2; 
+    int halfTilesX = 3; 
+    int halfTilesZ = 3; 
 
     Vector3 startPos; 
 
