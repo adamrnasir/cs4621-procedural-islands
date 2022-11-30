@@ -5,6 +5,12 @@ using UnityEngine;
 public class ThirdPersonMovement : MonoBehaviour
 {
 
+    // Land music
+    [SerializeField] private AudioSource landAudio = null;
+    // Water music
+    [SerializeField] private AudioSource waterAudio = null;
+
+
     public CharacterController controller; 
     public Transform cam; 
 
@@ -14,19 +20,19 @@ public class ThirdPersonMovement : MonoBehaviour
     public LayerMask groundMask; 
     public LayerMask waterMask; 
 
-    bool flight = false; 
-
     Vector3 velocity; 
     bool isGrounded; 
     bool isSwimming;
 
     public float speed = 1200f;
+
     public float turnSmoothTime = 0.1f;
     float turnSmoothVelocity;
 
     // Update is called once per frame
     void Update()
     {
+        Cursor.visible = false;
 
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
         isSwimming = Physics.CheckSphere(groundCheck.position, groundDistance, waterMask);
@@ -45,12 +51,28 @@ public class ThirdPersonMovement : MonoBehaviour
     //         flight = false;
     //     });
 
+        // Unmute land music and mute water music if the player is on land
+        if (isGrounded && !isSwimming)
+        {
+            landAudio.mute = false;
+            waterAudio.mute = true;
+        }
+
+        // Unmute water music and mute land music if the player is in the water
+        if (isSwimming && !isGrounded)
+        {
+            waterAudio.mute = false;
+            landAudio.mute = true;
+        }
 
 
         float horizontal = Input.GetAxisRaw("Horizontal");
         float vertical = Input.GetAxisRaw("Vertical");
 
-        Vector3 direction = new Vector3(horizontal, 0f, vertical).normalized;
+        Vector3 direction = new Vector3(0f, 0f, vertical).normalized;
+
+        direction.x += horizontal * Time.deltaTime;
+
         velocity.y += gravity * Time.deltaTime;
 
         if ((isGrounded || isSwimming) && Input.GetKeyDown(KeyCode.Space))
@@ -71,9 +93,5 @@ public class ThirdPersonMovement : MonoBehaviour
         }
 
         controller.Move(velocity * Time.deltaTime);
-
-
-
-        
     }
 }

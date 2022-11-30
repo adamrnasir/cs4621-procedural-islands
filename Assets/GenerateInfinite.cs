@@ -14,8 +14,6 @@ class Tile {
         creationTime = ct;
         treeArr = trees; 
         waterplane = wp;
-
-
     }
 }
 
@@ -213,10 +211,6 @@ public class GenerateInfinite : MonoBehaviour
             tiles = newTerrain; 
 
             startPos = player.transform.position; 
-
-
-
         }
-        
     }
 }

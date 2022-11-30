@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 184573900969444043}
   m_Layer: 4
   m_Name: InfiniteWaterPlane
-  m_TagString: Untagged
+  m_TagString: Env
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
