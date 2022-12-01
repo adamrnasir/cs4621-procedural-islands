@@ -5,7 +5,7 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     public CharacterController controller;
-    public float speed = 1200f;
+    public float speed = 12f;
     public float gravity = -9.81f;
     public Transform groundCheck;
     public float groundDistance = 0.4f;
@@ -54,26 +54,53 @@ public class PlayerMovement : MonoBehaviour
 
         velocity.y += gravity * Time.deltaTime;
 
-        if (isGrounded && Input.GetKeyDown(KeyCode.Space))
+
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            velocity.y = 6f;
+            if (!flight) {
+                if (isGrounded) {
+                    velocity.y = Mathf.Sqrt(speed * -2f * gravity);
+                }
+            } else {
+                velocity.y = speed;
+            }
         }
 
- 
-
-        if (flight && Input.GetKeyDown(KeyCode.Space)) { 
-            velocity.y = 3f;
-        }
-        if (flight && Input.GetKeyUp(KeyCode.Space)) { 
-            velocity.y = 0f;
+        if (Input.GetKeyDown(KeyCode.LeftShift)) {
+            if (flight) {
+                velocity.y = -speed;
+            }
         }
 
-        if (flight && Input.GetKeyDown(KeyCode.LeftShift)) { 
-            velocity.y = -3f; 
-        } 
-        if (flight && Input.GetKeyUp(KeyCode.LeftShift)) { 
-            velocity.y = 0f; 
+        if (Input.GetKeyUp(KeyCode.Space) || Input.GetKeyUp(KeyCode.LeftShift)) {
+            if (flight) {
+                velocity.y = 0f;
+            }
         }
+
+
+        // if (isGrounded && Input.GetKeyDown(KeyCode.Space))
+        // {
+        //     velocity.y = 6f;
+        // }
+
+        // if (flight && Input.GetKeyDown(KeyCode.Space)) 
+        // { 
+        //     velocity.y = 3f;
+        // }
+        // if (flight && Input.GetKeyUp(KeyCode.Space)) 
+        // { 
+        //     velocity.y = 0f;
+        // }
+
+        // if (flight && Input.GetKeyDown(KeyCode.LeftShift)) 
+        // { 
+        //     velocity.y = -3f; 
+        // } 
+        // if (flight && Input.GetKeyUp(KeyCode.LeftShift)) 
+        // { 
+        //     velocity.y = 0f; 
+        // }
 
         controller.Move(velocity * Time.deltaTime);
     }

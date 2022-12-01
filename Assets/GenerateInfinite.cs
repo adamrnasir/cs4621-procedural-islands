@@ -28,10 +28,10 @@ public class GenerateInfinite : MonoBehaviour
     public int depth = 20;
     public int width = 256;
     public int height = 256;
-    public int seed = 0;
+    public int seed = 7;
     public int octaves = 5;
     public float persistence = 0.5f;
-    public float lacunarity = 2f;
+    public float lacunarity = 3f;
     public Vector2 offset = Vector2.zero;
     public Texture2D sandTexture;
     public GameObject plane;
@@ -107,7 +107,6 @@ public class GenerateInfinite : MonoBehaviour
     float CalculateHeight(int x, int y, float x_offset, float y_offset, Vector2[] octaveOffsets)
     {
 
-
         // Debug.Log(this.transform.position.x);
         float sum_h = 0f;
         float amplitude = 1f;
@@ -138,8 +137,10 @@ public class GenerateInfinite : MonoBehaviour
 
         float updateTime = Time.realtimeSinceStartup; 
 
-        for (int x = -halfTilesX; x < halfTilesX; x++) {
-            for (int z = -halfTilesZ; z < halfTilesZ; z++) { 
+        for (int x = -halfTilesX; x < halfTilesX; x++) 
+        {
+            for (int z = -halfTilesZ; z < halfTilesZ; z++) 
+            { 
                 Vector3 pos = new Vector3((x * planeSize + startPos.x), 0, (z * planeSize + startPos.z));
                 Vector3 waterpos = new Vector3((x * planeSize + startPos.x + planeSize / 2), 2, (z * planeSize + startPos.z + planeSize / 2));
                 (TerrainData _terraindata, GameObject[] tree_arr) = GenerateTerrain(new TerrainData(), pos.x, pos.z);
