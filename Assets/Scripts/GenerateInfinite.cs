@@ -8,13 +8,15 @@ class Tile {
     public float creationTime; 
     public GameObject waterplane;
     public GameObject[] treeArr;
+    public ParticleSystem[] windArr;
     public Vector2 coord;
 
-    public Tile(GameObject t, GameObject wp, GameObject[] trees, float ct, Vector2 c) { 
+    public Tile(GameObject t, GameObject wp, GameObject[] trees, ParticleSystem[] wind, float ct, Vector2 c) { 
         theTile = t; 
         creationTime = ct;
         treeArr = trees; 
         coord = c;
+        windArr = wind;
         waterplane = wp;
     }
 }
@@ -48,7 +50,8 @@ public class GenerateInfinite : MonoBehaviour
 
     Hashtable tiles = new Hashtable();
 
-    void GenerateWind(float x_min, float x_max, float y_min, float y_max) { 
+    ParticleSystem[] GenerateWind(float x_min, float x_max, float y_min, float y_max) { 
+        List<ParticleSystem> windArr =  new List<ParticleSystem>();
 
         if (x_min > x_max) { 
             float temp = x_min; 
@@ -66,11 +69,13 @@ public class GenerateInfinite : MonoBehaviour
             for (float y = y_min; y <= y_max; y++) { 
                 float windSeed = Random.Range(0, 1f); 
                 if (windSeed > 0.99990) { 
-                    Instantiate (wind, new Vector3(x + Random.Range(0, 3f), Random.Range(4, 8), y + Random.Range(0, 3f)), Quaternion.identity);
+                    windArr.Add(Instantiate (wind, new Vector3(x + Random.Range(0, 3f), Random.Range(4, 8), y + Random.Range(0, 3f)), Quaternion.identity));
 
                 }
             }
         }
+
+        return windArr.ToArray();
 
     }
 
@@ -174,6 +179,9 @@ public class GenerateInfinite : MonoBehaviour
                     foreach (GameObject tree in tls.treeArr) {
                         Destroy(tree);
                     }
+                    foreach(ParticleSystem wind in tls.windArr) { 
+                        Destroy(wind);
+                    }
                 }
                 else { 
                     newTerrain.Add(tls.theTile.name, tls);
@@ -203,7 +211,7 @@ public class GenerateInfinite : MonoBehaviour
 
                     GameObject terrain = Terrain.CreateTerrainGameObject(_terraindata);
 
-                    GenerateWind(x * planeSize + playerX, (x + x) * planeSize + playerX, z * planeSize + playerZ, (z + z) * planeSize + playerZ);
+                    ParticleSystem[] windArr = GenerateWind(x * planeSize + playerX, (x + x) * planeSize + playerX, z * planeSize + playerZ, (z + z) * planeSize + playerZ);
 
                     GameObject t = (GameObject) Instantiate(terrain, pos, Quaternion.identity);
                     t.layer = 6;
@@ -214,7 +222,7 @@ public class GenerateInfinite : MonoBehaviour
 
                     Vector2 coord = new Vector2(x, z);
 
-                    Tile tile = new Tile(t, water, tree_arr, updateTime, coord);
+                    Tile tile = new Tile(t, water, tree_arr, windArr, updateTime, coord);
 
                     tiles.Add(tilename, tile);
                 }
