@@ -26,7 +26,6 @@ public class ThirdPersonMovement : MonoBehaviour
 
     bool isGrounded; 
     bool isSwimming;
-    bool wakeEmitting; 
 
     // New movement stuff
     public const float MAX_BOAT_SPEED = 48f;
@@ -35,9 +34,6 @@ public class ThirdPersonMovement : MonoBehaviour
 
     ParticleSystem wake_effect;
 
-    // Update is called once per frame
-    void Update()
-    {
     public const float MAX_BOAT_OMEGA = 16f;
     public const float BOAT_ALPHA = 0.5f;
     public const float BOAT_DEALPHA = 0.1f;
@@ -140,6 +136,20 @@ public class ThirdPersonMovement : MonoBehaviour
         if (Mathf.Abs(omega) <= 0.1f) 
         {
             omega = Mathf.SmoothStep(omega, 0f, WALK_DEALPHA);
+        }
+
+
+        // wake particle controller
+        if (Mathf.Abs(speed) >= 30f) { 
+
+            if (isSwimming) { 
+                wake_effect = Instantiate(wake, new Vector3(groundCheck.transform.position.x, groundCheck.transform.position.y, groundCheck.transform.position.z), wake.transform.rotation);
+            }
+
+            if (isGrounded) { 
+                Destroy(wake_effect); 
+            }
+
         }
 
         float speedProportion = (isSwimming) ? speed / MAX_BOAT_SPEED : speed / MAX_WALK_SPEED;

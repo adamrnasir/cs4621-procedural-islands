@@ -48,6 +48,18 @@ public class GenerateInfinite : MonoBehaviour
 
     void GenerateWind(float x_min, float x_max, float y_min, float y_max) { 
 
+        if (x_min > x_max) { 
+            float temp = x_min; 
+            x_min = x_max; 
+            x_max = temp;
+        }
+
+        if (y_min > y_max) { 
+            float temp = y_min; 
+            y_min = y_max; 
+            y_max = temp;
+        }
+
         for (float x = x_min; x <= x_max; x++) { 
             for (float y = y_min; y <= y_max; y++) { 
                 float windSeed = Random.Range(0, 1f); 
@@ -196,7 +208,7 @@ public class GenerateInfinite : MonoBehaviour
 
                         GameObject terrain = Terrain.CreateTerrainGameObject(_terraindata);
 
-                        GenerateWind(x, x * planeSize + playerX, z, z * planeSize + playerZ);
+                        GenerateWind(x * planeSize + playerX, (x + x) * planeSize + playerX, z * planeSize + playerZ, (z + z) * planeSize + playerZ);
 
 
 
@@ -234,4 +246,4 @@ public class GenerateInfinite : MonoBehaviour
             startPos = player.transform.position; 
         }
     }
-}
+ }
