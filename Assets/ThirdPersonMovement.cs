@@ -5,89 +5,185 @@ using UnityEngine;
 public class ThirdPersonMovement : MonoBehaviour
 {
 
-    public CharacterController controller; 
-    public Transform cam; 
+    // Land music
+    [SerializeField] private AudioSource landAudio = null;
+    // Water music
+    [SerializeField] private AudioSource waterAudio = null;
 
-    public float gravity = -9.81f;
+    public CharacterController controller; 
+
+    public Camera cam;
+
+    public GameObject boat;
+    public Animator animator;
+
+    public float gravity;
     public Transform groundCheck;
-    public float groundDistance = 0.4f; 
+    public float groundDistance = 0.2f; 
     public LayerMask groundMask; 
     public LayerMask waterMask; 
     public ParticleSystem wake; 
 
-    bool flight = false; 
-
-    Vector3 velocity; 
     bool isGrounded; 
     bool isSwimming;
     bool wakeEmitting; 
 
-    public float speed = 1200f;
-    public float turnSmoothTime = 0.1f;
-    float turnSmoothVelocity;
+    // New movement stuff
+    public const float MAX_BOAT_SPEED = 48f;
+    public const float BOAT_ACCELERATION = 0.5f;
+    public const float BOAT_DECELERATION = 0.1f;
 
     ParticleSystem wake_effect;
 
     // Update is called once per frame
     void Update()
     {
+    public const float MAX_BOAT_OMEGA = 16f;
+    public const float BOAT_ALPHA = 0.5f;
+    public const float BOAT_DEALPHA = 0.1f;
 
+    public const float MAX_BOAT_PITCH = 12f;
+    public const float MAX_BOAT_ROLL = 16f;
+
+
+
+    public const float MAX_WALK_SPEED = 36f;
+    public const float WALK_ACCELERATION = 0.55f;
+    public const float WALK_DECELERATION = 0.55f;
+
+    public const float MAX_WALK_OMEGA = 48f;
+    public const float WALK_ALPHA = 3f;
+    public const float WALK_DEALPHA = 3f;
+
+    public const float MAX_WALK_PITCH = 12f;
+    public const float MAX_WALK_ROLL = 2f;
+
+
+    public float speed = 0f;
+    public float accel = 0f;
+    public float theta = 0f;
+    public float omega = 0f;
+    public float alpha = 0f;
+
+    Vector3 velocity; 
+
+    void Update() 
+    {
+        // Check if we're on the ground
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
+
+        // Check if we're in the water
         isSwimming = Physics.CheckSphere(groundCheck.position, groundDistance, waterMask);
 
-        
-
-        if (isGrounded && velocity.y < 0)
+        if (!isSwimming)
         {
-            velocity.y = -2f;
+            animator.SetBool("isWalkingForward", true);
+            landAudio.mute = false;
+            waterAudio.mute = true;
+            boat.SetActive(false);
         }
-
-    //    System.Console.WriteLine( if (Input.GetKeyDown(KeyCode.F) && !flight) {
-    //         gravity = 0f;
-    //         velocity.y = 0f;
-    //         flight = true;
-    //     } else if (Input.GetKeyDown(KeyCode.F) && flight) { 
-    //         gravity = -9.81f;
-    //         flight = false;
-    //     });
-
-
+        else
+        {
+            animator.SetBool("isWalkingForward", false);
+            landAudio.mute = true;
+            waterAudio.mute = false;
+            boat.SetActive(true);
+        }
 
         float horizontal = Input.GetAxisRaw("Horizontal");
         float vertical = Input.GetAxisRaw("Vertical");
 
-        Vector3 direction = new Vector3(horizontal, 0f, vertical).normalized;
+        if (vertical != 0) 
+        {
+            accel = (isSwimming) ? vertical * BOAT_ACCELERATION : vertical * WALK_ACCELERATION;
+        }
+        else 
+        {
+            if (speed != 0) 
+            {
+                accel = -Mathf.Sign(speed) * ((isSwimming) ? BOAT_DECELERATION : WALK_DECELERATION);
+            }
+            else 
+            {
+                accel = 0f;
+            }
+        }
+
+        speed += accel;
+        speed = (isSwimming) ? Mathf.Clamp(speed, -MAX_BOAT_SPEED, MAX_BOAT_SPEED) : Mathf.Clamp(speed, -MAX_WALK_SPEED, MAX_WALK_SPEED);
+
+        if (horizontal != 0) 
+        {
+            alpha = (isSwimming) ? horizontal * BOAT_ALPHA : horizontal * WALK_ALPHA;
+        }
+        else 
+        {
+            if (omega != 0) 
+            {
+                alpha = -Mathf.Sign(omega) * ((isSwimming) ? BOAT_DEALPHA : WALK_DEALPHA);
+            }
+            else 
+            {
+                alpha = 0f;
+            }
+        }
+
+        omega += alpha;
+        omega = (isSwimming) ? Mathf.Clamp(omega, -MAX_BOAT_OMEGA, MAX_BOAT_OMEGA) : Mathf.Clamp(omega, -MAX_WALK_OMEGA, MAX_WALK_OMEGA);
+
+        // Set speed and omega to 0 if they're close enough to 0
+        if (Mathf.Abs(speed) <= 0.1f) 
+        {
+            speed = Mathf.SmoothStep(speed, 0f, WALK_DECELERATION);
+        }
+
+        if (Mathf.Abs(omega) <= 0.1f) 
+        {
+            omega = Mathf.SmoothStep(omega, 0f, WALK_DEALPHA);
+        }
+
+        float speedProportion = (isSwimming) ? speed / MAX_BOAT_SPEED : speed / MAX_WALK_SPEED;
+        float omegaProportion = (isSwimming) ? omega / MAX_BOAT_OMEGA : omega / MAX_WALK_OMEGA;
+
+        // Rotate the boat
+        theta += omega * (1f + Mathf.Abs(speedProportion)) * Time.deltaTime;
+        float pitch = (isSwimming) ? -Mathf.Max(0, speedProportion) * MAX_BOAT_PITCH : -Mathf.Max(0, speedProportion) * MAX_WALK_PITCH;
+        float roll = (isSwimming) ? -omegaProportion * MAX_BOAT_ROLL : -omegaProportion * MAX_WALK_ROLL;
+        transform.rotation = Quaternion.Euler(pitch, theta, roll);
+
+        // Move the boat
+        Vector3 velocity_point = transform.forward * speed * Time.deltaTime;
+        Vector3 move = new Vector3(velocity_point.x, 0f, velocity_point.z);
+        controller.Move(move);
+
+        // Apply gravity
         velocity.y += gravity * Time.deltaTime;
 
-        if ((isGrounded || isSwimming) && Input.GetKeyDown(KeyCode.Space))
+        // Jumping
+        if (isGrounded && Input.GetKeyDown(KeyCode.Space))
         {
             velocity.y = 6f;
         }
 
-
-        if (direction.magnitude >= 0.1f) { 
-
-            if (isSwimming && !wakeEmitting) { 
-                wake_effect =  Instantiate(wake, groundCheck.position, wake.transform.rotation);
-            }
-
-            if (isGrounded && wakeEmitting) { 
-                Destroy(wake_effect);
-            }
-
-            float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + cam.eulerAngles.y; 
-            float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, turnSmoothTime);
-            transform.rotation = Quaternion.Euler(0f, angle, 0f);
-
-            Vector3 moveDir = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward; 
-
-            controller.Move(moveDir.normalized * speed * Time.deltaTime);
-        }
-
         controller.Move(velocity * Time.deltaTime);
 
+        // // Unmute land music and mute water music if the player is on land
+        // if (isGrounded && !isSwimming)
+        // {
+        //     landAudio.mute = false;
+        //     waterAudio.mute = true;
+        //     boat.SetActive(false);
+        // }
 
+        // // Unmute water music and mute land music if the player is in the water
+        // if (isSwimming && !isGrounded)
+        // {
+        //     waterAudio.mute = false;
+        //     landAudio.mute = true;
+        //     boat.SetActive(true);
+        // }
 
-        
+        // Increase camera FOV depending on speed
+        cam.fieldOfView = Mathf.SmoothStep(40f, 50f, speed / MAX_BOAT_SPEED);
     }
 }

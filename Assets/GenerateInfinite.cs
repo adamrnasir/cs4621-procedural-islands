@@ -14,8 +14,6 @@ class Tile {
         creationTime = ct;
         treeArr = trees; 
         waterplane = wp;
-
-
     }
 }
 
@@ -41,8 +39,8 @@ public class GenerateInfinite : MonoBehaviour
 
 
     int planeSize = 256; 
-    int halfTilesX = 4; 
-    int halfTilesZ = 4; 
+    int halfTilesX = 2; 
+    int halfTilesZ = 2; 
 
     Vector3 startPos; 
 
@@ -189,7 +187,7 @@ public class GenerateInfinite : MonoBehaviour
                     Vector3 waterpos = new Vector3((x * planeSize + playerX + planeSize / 2), 2, (z * planeSize + playerZ + planeSize / 2));
                     string tilename = "Tile_" + ((int)(pos.x)).ToString() + "_" + ((int)(pos.z)).ToString();
 
-                    if(!tiles.ContainsKey(tilename)) { 
+                    if(!tiles.ContainsKey(tilename)) {
                         (TerrainData _terraindata, GameObject[] tree_arr) = GenerateTerrain(new TerrainData(), pos.x, pos.z);
                          // sand texture
                         TerrainLayer tl = new TerrainLayer();
@@ -234,10 +232,6 @@ public class GenerateInfinite : MonoBehaviour
             tiles = newTerrain; 
 
             startPos = player.transform.position; 
-
-
-
         }
-        
     }
 }
