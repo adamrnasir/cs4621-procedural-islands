@@ -8,7 +8,6 @@ class Tile {
     public float creationTime; 
     public GameObject waterplane;
     public GameObject[] treeArr;
-
     public Vector2 coord;
 
     public Tile(GameObject t, GameObject wp, GameObject[] trees, float ct, Vector2 c) { 

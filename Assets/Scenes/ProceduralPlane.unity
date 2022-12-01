@@ -385,10 +385,10 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: fd38e22311d8d4bb8bf25a13a1a27a32, type: 3}
   m_PlayOnAwake: 1
-  m_Volume: 0.5
+  m_Volume: 1
   m_Pitch: 1
   Loop: 1
-  Mute: 1
+  Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
   Priority: 128
@@ -481,10 +481,10 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: 3fbb9db485f7e4eca931c76448147662, type: 3}
   m_PlayOnAwake: 1
-  m_Volume: 0.5
+  m_Volume: 0
   m_Pitch: 1
   Loop: 1
-  Mute: 1
+  Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
   Priority: 128
@@ -711,6 +711,10 @@ PrefabInstance:
       propertyPath: wake
       value: 
       objectReference: {fileID: 8635775658446919635, guid: a4408633a24f141ae9ae4273e61471c0, type: 3}
+    - target: {fileID: 3468498416170572957, guid: 9bbd1025c48c84480af8304e6dedd0b6, type: 3}
+      propertyPath: wind
+      value: 
+      objectReference: {fileID: 9073383739671433162, guid: eafb6c5f0e97c4d0e991f3e54fa310ae, type: 3}
     - target: {fileID: 3468498416170572957, guid: 9bbd1025c48c84480af8304e6dedd0b6, type: 3}
       propertyPath: speed
       value: 30

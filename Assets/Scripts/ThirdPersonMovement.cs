@@ -23,6 +23,7 @@ public class ThirdPersonMovement : MonoBehaviour
     public LayerMask groundMask; 
     public LayerMask waterMask; 
     public ParticleSystem wake; 
+    ParticleSystem wake_effect;
 
     bool isGrounded; 
     bool isSwimming;
@@ -31,8 +32,6 @@ public class ThirdPersonMovement : MonoBehaviour
     public const float MAX_BOAT_SPEED = 48f;
     public const float BOAT_ACCELERATION = 0.5f;
     public const float BOAT_DECELERATION = 0.1f;
-
-    ParticleSystem wake_effect;
 
     public const float MAX_BOAT_OMEGA = 16f;
     public const float BOAT_ALPHA = 0.5f;
@@ -125,8 +124,10 @@ public class ThirdPersonMovement : MonoBehaviour
 
         if (!isSwimming)
         {
-            landAudio.mute = false;
-            waterAudio.mute = true;
+            // landAudio.mute = false;
+            landAudio.volume = Mathf.Lerp(landAudio.volume, 1f, 0.02f);
+            waterAudio.volume = Mathf.Lerp(waterAudio.volume, 0f, 0.02f);
+            // waterAudio.mute = true;
             boat.SetActive(false);
 
             if (vertical > 0 || horizontal != 0)
@@ -147,15 +148,17 @@ public class ThirdPersonMovement : MonoBehaviour
         }
         else
         {
-            landAudio.mute = true;
-            waterAudio.mute = false;
+            // landAudio.mute = true;
+            // waterAudio.mute = false;
+            landAudio.volume = Mathf.Lerp(landAudio.volume, 0f, 0.02f);
+            waterAudio.volume = Mathf.Lerp(waterAudio.volume, 1f, 0.02f);
             boat.SetActive(true);
             animator.SetBool("isWalkingForward", false);
         }
 
 
-        // wake particle controller
-        if (Mathf.Abs(speed) >= 30f) { 
+        // wake and wind particle controller
+        if (Mathf.Abs(speed) >= 30f && vertical != 0) { 
 
             if (isSwimming) { 
                 wake_effect = Instantiate(wake, new Vector3(groundCheck.transform.position.x, groundCheck.transform.position.y, groundCheck.transform.position.z), wake.transform.rotation);
@@ -191,22 +194,6 @@ public class ThirdPersonMovement : MonoBehaviour
         }
 
         controller.Move(velocity * Time.deltaTime);
-
-        // // Unmute land music and mute water music if the player is on land
-        // if (isGrounded && !isSwimming)
-        // {
-        //     landAudio.mute = false;
-        //     waterAudio.mute = true;
-        //     boat.SetActive(false);
-        // }
-
-        // // Unmute water music and mute land music if the player is in the water
-        // if (isSwimming && !isGrounded)
-        // {
-        //     waterAudio.mute = false;
-        //     landAudio.mute = true;
-        //     boat.SetActive(true);
-        // }
 
         // Increase camera FOV depending on speed
         cam.fieldOfView = Mathf.SmoothStep(40f, 50f, speed / MAX_BOAT_SPEED);
