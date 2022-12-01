@@ -9,10 +9,13 @@ class Tile {
     public GameObject waterplane;
     public GameObject[] treeArr;
 
-    public Tile(GameObject t, GameObject wp, GameObject[] trees, float ct) { 
+    public Vector2 coord;
+
+    public Tile(GameObject t, GameObject wp, GameObject[] trees, float ct, Vector2 c) { 
         theTile = t; 
         creationTime = ct;
         treeArr = trees; 
+        coord = c;
         waterplane = wp;
     }
 }
@@ -206,9 +209,13 @@ public class GenerateInfinite : MonoBehaviour
                     GameObject t = (GameObject) Instantiate(terrain, pos, Quaternion.identity);
                     t.layer = 6;
                     GameObject water = (GameObject) Instantiate(plane, waterpos, Quaternion.identity);
+
                     Destroy(terrain);
                     t.name = tilename; 
-                    Tile tile = new Tile(t, water, tree_arr, updateTime);
+
+                    Vector2 coord = new Vector2(x, z);
+
+                    Tile tile = new Tile(t, water, tree_arr, updateTime, coord);
 
                     tiles.Add(tilename, tile);
                 }
