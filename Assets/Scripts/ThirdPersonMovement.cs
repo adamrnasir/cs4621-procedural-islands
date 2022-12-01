@@ -9,6 +9,8 @@ public class ThirdPersonMovement : MonoBehaviour
     [SerializeField] private AudioSource landAudio = null;
     // Water music
     [SerializeField] private AudioSource waterAudio = null;
+    // Boat sound
+    [SerializeField] private AudioSource boatAudio = null;
 
     public CharacterController controller; 
 
@@ -122,41 +124,6 @@ public class ThirdPersonMovement : MonoBehaviour
             omega = Mathf.SmoothStep(omega, 0f, WALK_DEALPHA);
         }
 
-        if (!isSwimming)
-        {
-            // landAudio.mute = false;
-            landAudio.volume = Mathf.Lerp(landAudio.volume, 1f, 0.02f);
-            waterAudio.volume = Mathf.Lerp(waterAudio.volume, 0f, 0.02f);
-            // waterAudio.mute = true;
-            boat.SetActive(false);
-
-            if (vertical > 0 || horizontal != 0)
-            {
-                animator.SetBool("isWalkingForward", true);
-            } 
-            else if (vertical < 0)
-            {
-                animator.SetBool("isWalkingBackward", true);
-            }
-            else
-            {
-                if (Mathf.Abs(speed) < 1f) {
-                    animator.SetBool("isWalkingForward", false);
-                    animator.SetBool("isWalkingBackward", false);
-                }
-            }
-        }
-        else
-        {
-            // landAudio.mute = true;
-            // waterAudio.mute = false;
-            landAudio.volume = Mathf.Lerp(landAudio.volume, 0f, 0.02f);
-            waterAudio.volume = Mathf.Lerp(waterAudio.volume, 1f, 0.02f);
-            boat.SetActive(true);
-            animator.SetBool("isWalkingForward", false);
-        }
-
-
         // wake and wind particle controller
         if (Mathf.Abs(speed) >= 30f && vertical != 0) { 
 
@@ -194,6 +161,46 @@ public class ThirdPersonMovement : MonoBehaviour
         }
 
         controller.Move(velocity * Time.deltaTime);
+
+        if (!isSwimming)
+        {
+            // landAudio.mute = false;
+            landAudio.volume = Mathf.Lerp(landAudio.volume, 0.5f, 0.01f);
+            waterAudio.volume = Mathf.Lerp(waterAudio.volume, 0f, 0.01f);
+            boatAudio.volume = Mathf.Lerp(boatAudio.volume, 0f, 0.05f);
+            // waterAudio.mute = true;
+            boat.SetActive(false);
+
+            if (vertical > 0 || horizontal != 0)
+            {
+                animator.SetBool("isWalkingForward", true);
+            } 
+            else if (vertical < 0)
+            {
+                animator.SetBool("isWalkingBackward", true);
+            }
+            else
+            {
+                if (Mathf.Abs(speed) < 1f) {
+                    animator.SetBool("isWalkingForward", false);
+                    animator.SetBool("isWalkingBackward", false);
+                }
+            }
+        }
+        else
+        {
+            // landAudio.mute = true;
+            // waterAudio.mute = false;
+            landAudio.volume = Mathf.Lerp(landAudio.volume, 0f, 0.01f);
+            waterAudio.volume = Mathf.Lerp(waterAudio.volume, 0.5f, 0.01f);
+            boat.SetActive(true);
+            animator.SetBool("isWalkingForward", false);
+            boatAudio.volume = Mathf.Abs(speedProportion) * 0.3f + 0.1f;
+            
+            // Increase pitch with speed to a maximum of 1.2
+            boatAudio.pitch = Mathf.Abs(speedProportion) * 0.2f + 1f;
+        }
+
 
         // Increase camera FOV depending on speed
         cam.fieldOfView = Mathf.SmoothStep(40f, 50f, speed / MAX_BOAT_SPEED);
