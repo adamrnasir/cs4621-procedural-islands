@@ -63,7 +63,7 @@ public class GenerateInfinite : MonoBehaviour
         for (float x = x_min; x <= x_max; x++) { 
             for (float y = y_min; y <= y_max; y++) { 
                 float windSeed = Random.Range(0, 1f); 
-                if (windSeed > 0.99995) { 
+                if (windSeed > 0.99990) { 
                     Instantiate (wind, new Vector3(x + Random.Range(0, 3f), Random.Range(4, 8), y + Random.Range(0, 3f)), Quaternion.identity);
 
                 }
@@ -141,41 +141,12 @@ public class GenerateInfinite : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
         this.gameObject.transform.position = Vector3.zero;
         startPos = Vector3.zero; 
 
         float updateTime = Time.realtimeSinceStartup; 
 
-        for (int x = -halfTilesX; x < halfTilesX; x++) 
-        {
-            for (int z = -halfTilesZ; z < halfTilesZ; z++) 
-            { 
-                Vector3 pos = new Vector3((x * planeSize + startPos.x), 0, (z * planeSize + startPos.z));
-                Vector3 waterpos = new Vector3((x * planeSize + startPos.x + planeSize / 2), 2, (z * planeSize + startPos.z + planeSize / 2));
-                (TerrainData _terraindata, GameObject[] tree_arr) = GenerateTerrain(new TerrainData(), pos.x, pos.z);
-
-                // sand texture
-                TerrainLayer tl = new TerrainLayer();
-                tl.diffuseTexture = sandTexture; 
-                _terraindata.terrainLayers = new TerrainLayer[] {tl};
-
-
-                GenerateWind(x, x * planeSize + startPos.x, z, z * planeSize + startPos.z);
-
-                GameObject terrain = Terrain.CreateTerrainGameObject(_terraindata);
-                GameObject water = (GameObject) Instantiate(plane, waterpos, Quaternion.identity);
-                GameObject t = (GameObject) Instantiate(terrain, pos, Quaternion.identity);
-                t.layer = 6;
-                Destroy(terrain);
-
-                string tilename = "Tile_" + ((int)(pos.x)).ToString() + "_" + ((int)(pos.z)).ToString();
-                t.name = tilename; 
-                Tile tile = new Tile(t, water, tree_arr, updateTime);
-                tiles.Add(tilename, tile);
-            }
-        }
-        
+        Regenerate(startPos.x, startPos.z, updateTime);
     }
 
     // // Update is called once per frame
@@ -193,39 +164,7 @@ public class GenerateInfinite : MonoBehaviour
             int playerX = (int)(Mathf.Floor(player.transform.position.x/planeSize)*planeSize);
             int playerZ = (int)(Mathf.Floor(player.transform.position.z/planeSize)*planeSize);
 
-            for (int x = -halfTilesX; x < halfTilesX; x++) { 
-                for (int z = -halfTilesZ; z < halfTilesZ; z++) { 
-                    Vector3 pos = new Vector3((x * planeSize + playerX), 0, (z * planeSize + playerZ));
-                    Vector3 waterpos = new Vector3((x * planeSize + playerX + planeSize / 2), 2, (z * planeSize + playerZ + planeSize / 2));
-                    string tilename = "Tile_" + ((int)(pos.x)).ToString() + "_" + ((int)(pos.z)).ToString();
-
-                    if(!tiles.ContainsKey(tilename)) {
-                        (TerrainData _terraindata, GameObject[] tree_arr) = GenerateTerrain(new TerrainData(), pos.x, pos.z);
-                         // sand texture
-                        TerrainLayer tl = new TerrainLayer();
-                        tl.diffuseTexture = sandTexture; 
-                        _terraindata.terrainLayers = new TerrainLayer[] {tl};
-
-                        GameObject terrain = Terrain.CreateTerrainGameObject(_terraindata);
-
-                        GenerateWind(x * planeSize + playerX, (x + x) * planeSize + playerX, z * planeSize + playerZ, (z + z) * planeSize + playerZ);
-
-
-
-                        GameObject t = (GameObject) Instantiate(terrain, pos, Quaternion.identity);
-                        t.layer = 6;
-                        GameObject water = (GameObject) Instantiate(plane, waterpos, Quaternion.identity);
-                        Destroy(terrain);
-                        t.name = tilename; 
-                        Tile tile = new Tile(t, water, tree_arr, updateTime);
-
-                        tiles.Add(tilename, tile);
-                    }
-                    else { 
-                        (tiles[tilename] as Tile).creationTime = updateTime;
-                    }
-                }
-            }
+            Regenerate(playerX, playerZ, updateTime);
 
             Hashtable newTerrain = new Hashtable(); 
             foreach(Tile tls in tiles.Values){ 
@@ -246,4 +185,39 @@ public class GenerateInfinite : MonoBehaviour
             startPos = player.transform.position; 
         }
     }
- }
+
+    void Regenerate(float playerX, float playerZ, float updateTime)
+    {
+        for (int x = -halfTilesX; x < halfTilesX; x++) { 
+            for (int z = -halfTilesZ; z < halfTilesZ; z++) { 
+                Vector3 pos = new Vector3((x * planeSize + playerX), 0, (z * planeSize + playerZ));
+                Vector3 waterpos = new Vector3((x * planeSize + playerX + planeSize / 2), 2, (z * planeSize + playerZ + planeSize / 2));
+                string tilename = "Tile_" + ((int)(pos.x)).ToString() + "_" + ((int)(pos.z)).ToString();
+
+                if(!tiles.ContainsKey(tilename)) {
+                    (TerrainData _terraindata, GameObject[] tree_arr) = GenerateTerrain(new TerrainData(), pos.x, pos.z);
+                    // sand texture
+                    TerrainLayer tl = new TerrainLayer();
+                    tl.diffuseTexture = sandTexture; 
+                    _terraindata.terrainLayers = new TerrainLayer[] {tl};
+
+                    GameObject terrain = Terrain.CreateTerrainGameObject(_terraindata);
+
+                    GenerateWind(x * planeSize + playerX, (x + x) * planeSize + playerX, z * planeSize + playerZ, (z + z) * planeSize + playerZ);
+
+                    GameObject t = (GameObject) Instantiate(terrain, pos, Quaternion.identity);
+                    t.layer = 6;
+                    GameObject water = (GameObject) Instantiate(plane, waterpos, Quaternion.identity);
+                    Destroy(terrain);
+                    t.name = tilename; 
+                    Tile tile = new Tile(t, water, tree_arr, updateTime);
+
+                    tiles.Add(tilename, tile);
+                }
+                else { 
+                    (tiles[tilename] as Tile).creationTime = updateTime;
+                }
+            }
+        }
+    }
+}
