@@ -13,16 +13,20 @@ public class ThirdPersonMovement : MonoBehaviour
     public float groundDistance = 0.4f; 
     public LayerMask groundMask; 
     public LayerMask waterMask; 
+    public ParticleSystem wake; 
 
     bool flight = false; 
 
     Vector3 velocity; 
     bool isGrounded; 
     bool isSwimming;
+    bool wakeEmitting; 
 
     public float speed = 1200f;
     public float turnSmoothTime = 0.1f;
     float turnSmoothVelocity;
+
+    ParticleSystem wake_effect;
 
     // Update is called once per frame
     void Update()
@@ -30,6 +34,8 @@ public class ThirdPersonMovement : MonoBehaviour
 
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
         isSwimming = Physics.CheckSphere(groundCheck.position, groundDistance, waterMask);
+
+        
 
         if (isGrounded && velocity.y < 0)
         {
@@ -60,6 +66,14 @@ public class ThirdPersonMovement : MonoBehaviour
 
 
         if (direction.magnitude >= 0.1f) { 
+
+            if (isSwimming && !wakeEmitting) { 
+                wake_effect =  Instantiate(wake, groundCheck.position, wake.transform.rotation);
+            }
+
+            if (isGrounded && wakeEmitting) { 
+                Destroy(wake_effect);
+            }
 
             float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + cam.eulerAngles.y; 
             float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, turnSmoothTime);

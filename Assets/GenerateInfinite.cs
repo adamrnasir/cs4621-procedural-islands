@@ -36,6 +36,7 @@ public class GenerateInfinite : MonoBehaviour
     public Texture2D sandTexture;
     public GameObject plane;
     public GameObject tree;
+    public ParticleSystem wind;
 
 
 
@@ -46,6 +47,20 @@ public class GenerateInfinite : MonoBehaviour
     Vector3 startPos; 
 
     Hashtable tiles = new Hashtable();
+
+    void GenerateWind(float x_min, float x_max, float y_min, float y_max) { 
+
+        for (float x = x_min; x <= x_max; x++) { 
+            for (float y = y_min; y <= y_max; y++) { 
+                float windSeed = Random.Range(0, 1f); 
+                if (windSeed > 0.99995) { 
+                    Instantiate (wind, new Vector3(x + Random.Range(0, 3f), Random.Range(4, 8), y + Random.Range(0, 3f)), Quaternion.identity);
+
+                }
+            }
+        }
+
+    }
 
     (TerrainData terrainData, GameObject[] trees) GenerateTerrain(TerrainData terrainData, float x_offset, float y_offset)
     {
@@ -135,6 +150,7 @@ public class GenerateInfinite : MonoBehaviour
                 _terraindata.terrainLayers = new TerrainLayer[] {tl};
 
 
+                GenerateWind(x, x * planeSize + startPos.x, z, z * planeSize + startPos.z);
 
                 GameObject terrain = Terrain.CreateTerrainGameObject(_terraindata);
                 GameObject water = (GameObject) Instantiate(plane, waterpos, Quaternion.identity);
@@ -151,11 +167,12 @@ public class GenerateInfinite : MonoBehaviour
         
     }
 
-    // Update is called once per frame
+    // // Update is called once per frame
     void Update()
     {
         int xMove = (int)(player.transform.position.x - startPos.x); 
         int zMove = (int)(player.transform.position.z - startPos.z); 
+
 
         if (Mathf.Abs(xMove) >= planeSize || Mathf.Abs(zMove) >= planeSize) { 
 
@@ -179,6 +196,8 @@ public class GenerateInfinite : MonoBehaviour
                         _terraindata.terrainLayers = new TerrainLayer[] {tl};
 
                         GameObject terrain = Terrain.CreateTerrainGameObject(_terraindata);
+
+                        GenerateWind(x, x * planeSize + playerX, z, z * planeSize + playerZ);
 
 
 
