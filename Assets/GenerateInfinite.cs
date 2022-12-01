@@ -34,6 +34,7 @@ public class GenerateInfinite : MonoBehaviour
     public Texture2D sandTexture;
     public GameObject plane;
     public GameObject tree;
+    public ParticleSystem wind;
 
 
 
@@ -44,6 +45,32 @@ public class GenerateInfinite : MonoBehaviour
     Vector3 startPos; 
 
     Hashtable tiles = new Hashtable();
+
+    void GenerateWind(float x_min, float x_max, float y_min, float y_max) { 
+
+        if (x_min > x_max) { 
+            float temp = x_min; 
+            x_min = x_max; 
+            x_max = temp;
+        }
+
+        if (y_min > y_max) { 
+            float temp = y_min; 
+            y_min = y_max; 
+            y_max = temp;
+        }
+
+        for (float x = x_min; x <= x_max; x++) { 
+            for (float y = y_min; y <= y_max; y++) { 
+                float windSeed = Random.Range(0, 1f); 
+                if (windSeed > 0.99990) { 
+                    Instantiate (wind, new Vector3(x + Random.Range(0, 3f), Random.Range(4, 8), y + Random.Range(0, 3f)), Quaternion.identity);
+
+                }
+            }
+        }
+
+    }
 
     (TerrainData terrainData, GameObject[] trees) GenerateTerrain(TerrainData terrainData, float x_offset, float y_offset)
     {
@@ -122,11 +149,12 @@ public class GenerateInfinite : MonoBehaviour
         Regenerate(startPos.x, startPos.z, updateTime);
     }
 
-    // Update is called once per frame
+    // // Update is called once per frame
     void Update()
     {
         int xMove = (int)(player.transform.position.x - startPos.x); 
         int zMove = (int)(player.transform.position.z - startPos.z); 
+
 
         if (Mathf.Abs(xMove) >= planeSize || Mathf.Abs(zMove) >= planeSize) { 
 
@@ -174,6 +202,8 @@ public class GenerateInfinite : MonoBehaviour
                     _terraindata.terrainLayers = new TerrainLayer[] {tl};
 
                     GameObject terrain = Terrain.CreateTerrainGameObject(_terraindata);
+
+                    GenerateWind(x * planeSize + playerX, (x + x) * planeSize + playerX, z * planeSize + playerZ, (z + z) * planeSize + playerZ);
 
                     GameObject t = (GameObject) Instantiate(terrain, pos, Quaternion.identity);
                     t.layer = 6;
