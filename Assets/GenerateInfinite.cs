@@ -125,9 +125,7 @@ public class GenerateInfinite : MonoBehaviour
         for (int i = 0; i < octaves; i++)
         {
             float x_coord = (float)(x + y_offset) / width * frequency + octaveOffsets[i].x;
-            float y_coord = (float)(y + x_offset) / height * frequency+ octaveOffsets[i].y;
-            // float x_coord = (float)(x ) / width * frequency + octaveOffsets[i].x;
-            // float y_coord = (float)(y ) / height * frequency+ octaveOffsets[i].y;
+            float y_coord = (float)(y + x_offset) / height * frequency + octaveOffsets[i].y;
             float h = Mathf.PerlinNoise(x_coord, y_coord) * 2 - 1;
             sum_h += h * amplitude;
 

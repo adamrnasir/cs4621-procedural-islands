@@ -71,21 +71,6 @@ public class ThirdPersonMovement : MonoBehaviour
         // Check if we're in the water
         isSwimming = Physics.CheckSphere(groundCheck.position, groundDistance, waterMask);
 
-        if (!isSwimming)
-        {
-            animator.SetBool("isWalkingForward", true);
-            landAudio.mute = false;
-            waterAudio.mute = true;
-            boat.SetActive(false);
-        }
-        else
-        {
-            animator.SetBool("isWalkingForward", false);
-            landAudio.mute = true;
-            waterAudio.mute = false;
-            boat.SetActive(true);
-        }
-
         float horizontal = Input.GetAxisRaw("Horizontal");
         float vertical = Input.GetAxisRaw("Vertical");
 
@@ -136,6 +121,36 @@ public class ThirdPersonMovement : MonoBehaviour
         if (Mathf.Abs(omega) <= 0.1f) 
         {
             omega = Mathf.SmoothStep(omega, 0f, WALK_DEALPHA);
+        }
+
+        if (!isSwimming)
+        {
+            landAudio.mute = false;
+            waterAudio.mute = true;
+            boat.SetActive(false);
+
+            if (vertical > 0 || horizontal != 0)
+            {
+                animator.SetBool("isWalkingForward", true);
+            } 
+            else if (vertical < 0)
+            {
+                animator.SetBool("isWalkingBackward", true);
+            }
+            else
+            {
+                if (Mathf.Abs(speed) < 1f) {
+                    animator.SetBool("isWalkingForward", false);
+                    animator.SetBool("isWalkingBackward", false);
+                }
+            }
+        }
+        else
+        {
+            landAudio.mute = true;
+            waterAudio.mute = false;
+            boat.SetActive(true);
+            animator.SetBool("isWalkingForward", false);
         }
 
 
